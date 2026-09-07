@@ -1214,6 +1214,7 @@ body.ficha-abierta .head{transform:translate3d(0,-102%,0)}
 .eqn details:nth-child(1){--fx:51%;--fy:47%}   /* Sergio: parado, cara alta y centrada */
 .eqn details:nth-child(2){--fx:47%;--fy:60%}   /* Matías: sentado, cara baja y algo a la izquierda */
 .eqn details:nth-child(3){--fx:49%;--fy:56%}   /* Ayelén: sentada, cara baja */
+.eqn details:nth-child(4){--fx:28%;--fy:57%}   /* Lucía: parada contra la biblioteca, bien a la izquierda del cuadro */
 /* el premio de pasar el mouse es la cara, no un efecto */
 .eqn details:hover .eqn__foto img,
 .eqn details:focus-within .eqn__foto img{filter:grayscale(0) brightness(.94) contrast(1)}
@@ -1224,8 +1225,10 @@ body.ficha-abierta .head{transform:translate3d(0,-102%,0)}
   font-size:clamp(24px,3vw,44px);max-width:9ch;color:var(--hueso);
 }
 .eqn__esp{font:600 11px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dorado)}
-.eqn__esp--vacio{color:rgba(242,234,219,.5)}   /* Lucía: no hay rol que declarar todavía.
-   Ayelén lo usaba hasta el 28-08: se le sacó el badge y quedó sólo el cargo. */
+.eqn__esp--vacio{color:rgba(242,234,219,.5)}   /* hoy no lo usa nadie: es el badge
+   apagado para un rol sin confirmar. Lo usó Ayelén hasta el 28-08 y Lucía hasta el 07-09;
+   a las dos se les sacó el badge cuando llegaron los datos y quedó sólo el cargo. Queda
+   la regla por si entra alguien nuevo con la ficha a medias. */
 .eqn__cargo{font-size:13.5px;line-height:1.35;color:rgba(242,234,219,.72);margin:0}
 .eqn__ver{
   display:inline-flex;align-items:center;gap:7px;
