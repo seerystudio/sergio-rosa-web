@@ -329,8 +329,11 @@
 
     /* El telón tapa una carga real —el retrato del hero pesa y se decodifica acá
        abajo— pero nunca menos de ESPERA (si no, con caché es un parpadeo) ni más
-       de TOPE (si no, una imagen que no llega deja la puerta cerrada). */
-    var ESPERA = 1150, TOPE = 4000, t0 = (new Date()).getTime();
+       de TOPE (si no, una imagen que no llega deja la puerta cerrada).
+       ESPERA bajó de 1150 a 600 el 2026-09-15: el telón era el techo del LCP
+       —la foto del hero no cuenta como pintada hasta que sube la hoja— y con
+       600 sigue sin ser un parpadeo cuando la página ya está en caché. */
+    var ESPERA = 600, TOPE = 4000, t0 = (new Date()).getTime();
     function cuandoCargue(){
       setTimeout(salir, Math.max(0, ESPERA - ((new Date()).getTime() - t0)));
     }

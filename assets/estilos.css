@@ -160,6 +160,28 @@ ul{padding:0;list-style:none}
 .sec--dark .btn--gh{background:transparent;color:var(--texto);border-color:var(--linea)}
 .sec--dark .btn--gh:hover{background:rgba(242,234,219,.07);color:var(--texto);border-color:var(--texto)}
 .sec--dark :focus-visible{outline-color:var(--texto)}
+/* Los campos del formulario, por la misma razón que el botón: estaban pintados
+   con primitivas (--blanco de fondo, --grafito de texto y de borde al foco), no
+   con roles, así que #contacto se fue a ónix y los cinco campos se quedaron
+   blancos — cinco rectángulos duros sobre negro. Acá siguen al tema como el
+   resto: la superficie sube a grafito, igual que cualquier otra elevación
+   oscura, y el foco se marca con --texto, que sobre ónix se ve.
+   `color-scheme` es lo que hace que el cursor, la selección y la barra del
+   textarea los pinte oscuros el propio navegador; el bloque de autocompletado
+   de abajo existe porque Chrome pisa el fondo con un amarillo suyo y sin eso
+   el rectángulo blanco volvía apenas la persona autocompletaba el nombre. */
+.sec--dark .campo input,.sec--dark .campo textarea{
+  background:var(--superficie);color:var(--texto);
+  border-color:var(--linea);color-scheme:dark;
+}
+.sec--dark .campo input:focus,.sec--dark .campo textarea:focus{border-color:var(--texto)}
+.sec--dark .campo input:-webkit-autofill,
+.sec--dark .campo input:-webkit-autofill:hover,
+.sec--dark .campo input:-webkit-autofill:focus{
+  -webkit-text-fill-color:var(--texto);
+  -webkit-box-shadow:0 0 0 100px var(--superficie) inset;
+  caret-color:var(--texto);
+}
 
 /* pesos con rol: 600 titulares · 500 subtítulos · 450 destacados · 400 cuerpo.
    Bajados el 06-08: con Inter Tight apretada, 900 se veía cargado.
