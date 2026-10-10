@@ -264,7 +264,7 @@
     function medir(){
       var r = logo.getBoundingClientRect();
       alto = window.innerHeight;
-      var an = Math.min(alto * 0.68, window.innerWidth * 0.66);
+      var an = Math.min(alto * 0.88, window.innerWidth * 0.82);
       var m  = Math.max(24, Math.min(80, window.innerWidth * 0.06));
       var S  = an / r.width;
       gsap.set(sim, { left: r.left, top: r.top, width: r.width, height: r.height });
