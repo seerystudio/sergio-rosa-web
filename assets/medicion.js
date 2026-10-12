@@ -19,7 +19,7 @@
    con consentimiento. Sin el ID cargado (abajo) el script no hace nada.
    ══════════════════════════════════════════════════════════════════════════ */
 (function(){
-  var GA_ID = 'G-XXXXXXXXXX';             /* ← ID de medición de GA4 */
+  var GA_ID = 'G-E703H4R845';             /* ← ID de medición de GA4 */
   var CLAVE = 'sr-cookies';
   if (!/^G-[A-Z0-9]{6,}$/.test(GA_ID) || GA_ID === 'G-XXXXXXXXXX') return;
 
