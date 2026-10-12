@@ -18,4 +18,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://seerystudio.github.io/sergio-rosa-web/sitemap.xml
+Sitemap: https://estudiojcosergiorosayasoc.com.ar/sitemap.xml
