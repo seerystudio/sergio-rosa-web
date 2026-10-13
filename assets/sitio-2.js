@@ -996,7 +996,10 @@
 
     /* Los tres tiempos, en progreso del bloque. ABRE_* es el plegado de la
        tapa; el reparto arranca cuando la tapa ya está casi abierta. */
-    var ABRE_INI = .06, ABRE_FIN = .20;
+    var ABRE_INI = .08, ABRE_FIN = .20;
+    /* antes de la tapa, los elásticos (2026-10-12) */
+    var SUELTA_FIN = .07;
+    var lomo = folder.querySelector('.cpo__lomo') || folder;
     /* Salen DE A TRES, que en una grilla de tres columnas es UNA FILA POR
        ANILLO: las tres de la fila vuelan juntas a casillas vecinas, así que no
        se cruzan entre ellas y la retícula se llena fila por fila. Adentro del
@@ -1039,6 +1042,17 @@
          carpeta), sin JS y con motion reducido. */
       celdas.forEach(function(c){
         if (c.hasAttribute('data-anim')) { c.removeAttribute('data-anim'); c.classList.add('vista'); }
+        /* el papel es un documento: número y nombre del área (ver .srv__doc) */
+        if (!c.querySelector('.srv__doc')) {
+          var n = c.querySelector('.srv__n'), t = c.querySelector('h3');
+          var d = document.createElement('span');
+          d.className = 'srv__doc';
+          d.setAttribute('aria-hidden', 'true');
+          d.innerHTML = '<b></b><span></span>';
+          d.firstChild.textContent = n ? n.textContent : '';
+          d.lastChild.textContent = t ? t.textContent : '';
+          c.appendChild(d);
+        }
       });
       /* el alto del título, clavado en el que mide asentado: la celda viaja
          escalada y el texto entra recién al final, así que nada de esto puede
@@ -1144,6 +1158,7 @@
          mitad de camino si el scroll se detiene. */
       var abre = tope((p - ABRE_INI) / (ABRE_FIN - ABRE_INI));
       folder.style.setProperty('--abre', abre.toFixed(3));
+      folder.style.setProperty('--suelto', tope(p / SUELTA_FIN).toFixed(3));
 
       /* el marco de la grilla entra con las primeras celdas */
       red.style.setProperty('--red', tope((p - TIRA_INI) / .30).toFixed(3));
@@ -1158,6 +1173,10 @@
          boca al 10%, media celda asoma por arriba —los papeles guardados— y la
          otra mitad queda detrás de la tapa. */
       var bocaY = rf.top + rf.height * .10 - rr.top;
+      /* Los papeles guardados son casi del ancho del lomo y asoman apenas por
+         arriba de su borde: el resto queda detrás de la carpeta. */
+      var rl = lomo.getBoundingClientRect();
+      var lomoTop = rl.top - rr.top;
 
       var enVuelo = 0;
       celdas.forEach(function(c, i){
@@ -1176,10 +1195,11 @@
         /* dónde está la celda ahora: de la boca de la carpeta a su casilla.
            El corrimiento por índice es el de una pila de papeles: sin él, las
            doce quietas adentro de la carpeta son un solo rectángulo. */
+        var chica = Math.min(1, Math.max(ESC_CHICA, (rl.width - 40) / c.offsetWidth));
         var dx = bocaX - (c.offsetLeft + c.offsetWidth / 2) + i * 2;
-        var dy = bocaY - (c.offsetTop + c.offsetHeight / 2) + i * 2.5;
+        var dy = (lomoTop - 20 + c.offsetHeight * chica / 2) - (c.offsetTop + c.offsetHeight / 2) + i * 2;
         var vuelo = Math.sin(Math.PI * q);
-        var esc = ESC_CHICA + (1 - ESC_CHICA) * suave(tope((q - .35) / .65));
+        var esc = chica + (1 - chica) * suave(tope((q - .35) / .65));
         c.style.transform = 'translate3d(' + (dx * k).toFixed(2) + 'px,' +
           (dy * k - vuelo * ALZA).toFixed(2) + 'px,0) rotate(' +
           (((i % 5) - 2) * 1.6 * kGiro).toFixed(2) + 'deg) scale(' + esc.toFixed(4) + ')';
@@ -1189,7 +1209,7 @@
         c.style.setProperty('--tinta', tope((q - .85) / .15).toFixed(3));
         c.style.setProperty('--marco', (MARCO * k).toFixed(3));
         /* quieta adentro de la carpeta va debajo de la tapa; en vuelo, arriba */
-        c.style.zIndex = q > 0 ? (20 + celdas.length - i) : 2;
+        c.style.zIndex = q > .12 ? (20 + celdas.length - i) : 2;
       });
 
       /* la carpeta se cierra y se va cuando ya no le queda nada adentro */
@@ -1197,8 +1217,14 @@
          porque una carpeta vacía a la vista es un objeto sin función */
       var salioTodo = TIRA_INI + 3 * PASO + 2 * PASO_IN;
       var vacia = p > salioTodo;
-      folder.style.setProperty('--vive', vacia ? '0' : '1');
-      if (vacia) folder.style.setProperty('--abre', (1 - tope((p - salioTodo) / .12)).toFixed(3));
+      /* Vacía se cierra y vuelven los elásticos, pero NO se va (2026-10-12):
+         antes se fundía y dejaba arriba de la retícula una banda negra vacía
+         hasta que la banda salía de pantalla. Cerrada es el archivo de donde
+         salieron las áreas, y llena ese lugar. */
+      if (vacia) {
+        folder.style.setProperty('--abre', (1 - tope((p - salioTodo) / .12)).toFixed(3));
+        folder.style.setProperty('--suelto', (1 - tope((p - salioTodo - .10) / .08)).toFixed(3));
+      }
 
       if (p >= 1) {
         terminado = true;
@@ -1239,20 +1265,36 @@
     });
   })();
 
-  /* --- mapa: el iframe de Google entra recién cuando alguien lo pide --- */
+  /* --- mapa: sin botón, atado al permiso de cookies (2026-10-12) ---
+     Con 'sr-cookies' = 'si' el iframe se pide cuando la sección está a una
+     pantalla de distancia. Si la persona acepta después (el aviso dispara
+     'sr-cookies'), aparece en ese momento. Sin permiso no se pide nada a
+     Google y queda la dirección con el enlace. */
   (function mapa(){
-    var caja = $('mapa'), boton = $('mapa-load');
-    if (!caja || !boton) return;
-    boton.addEventListener('click', function(){
+    var caja = $('mapa');
+    if (!caja) return;
+    var cerca = false, pedido = false;
+    function permitido(){ try { return localStorage.getItem('sr-cookies') === 'si'; } catch(e){ return false; } }
+    function cargar(){
+      if (pedido || !cerca || !permitido()) return;
+      pedido = true;
+      caja.dataset.pedido = 'si';
       var f = document.createElement('iframe');
       f.src = 'https://www.google.com/maps?q=' + encodeURIComponent('Carlos Pellegrini 1368, San Pedro, Buenos Aires') + '&z=16&output=embed';
       f.title = 'Mapa de Carlos Pellegrini 1368, San Pedro';
-      f.loading = 'lazy';
       f.referrerPolicy = 'no-referrer-when-downgrade';
       f.setAttribute('allowfullscreen', '');
+      f.addEventListener('load', function(){ caja.dataset.cargado = 'si'; });
       caja.appendChild(f);
-      caja.dataset.cargado = 'si';
-    });
+    }
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function(es){
+        if (!es[0].isIntersecting) return;
+        cerca = true; io.disconnect(); cargar();
+      }, { rootMargin: '100% 0px' });
+      io.observe(caja);
+    } else { cerca = true; cargar(); }
+    document.addEventListener('sr-cookies', cargar);
   })();
 
   /* --- contacto: legajo (pestañas por expediente) + envío ---
@@ -1360,4 +1402,57 @@
     listo.setAttribute('tabindex', '-1');
     listo.focus({ preventScroll: true });
   });
+})();
+
+/* --- pie: la firma se arma una vez (2026-10-12) ---
+   Las clases las pone sólo este script: sin JS o con motion reducido la firma
+   está quieta y completa desde el primer momento. */
+(function firma(){
+  var pie = document.querySelector('.foot'), f = pie && pie.querySelector('.foot__firma');
+  if (!f || !('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  pie.classList.add('foot--anima');
+  var io = new IntersectionObserver(function(es){
+    if (!es[0].isIntersecting) return;
+    pie.classList.add('foot--visto');
+    io.disconnect();
+  }, { threshold: .35 });
+  io.observe(f);
+})();
+
+/* --- header: subrayado dorado en la sección actual (2026-10-12) ---
+   Sólo para los links del menú que apuntan a una sección de ESTA página. La
+   sección actual es la última cuyo borde de arriba pasó el 35% de la
+   pantalla. */
+(function seccionActual(){
+  var nav = document.querySelector('.head .nav');
+  if (!nav) return;
+  var pares = [].slice.call(nav.querySelectorAll('a[href*="#"]')).map(function(a){
+    var id = a.getAttribute('href').split('#')[1];
+    var s = id && id !== 'inicio' && document.getElementById(id);
+    return s && !/^\.\.\//.test(a.getAttribute('href')) ? { a: a, s: s } : null;
+  }).filter(Boolean);
+  if (!pares.length) return;
+  var marca = document.createElement('i');
+  marca.className = 'nav__marca';
+  marca.setAttribute('aria-hidden', 'true');
+  nav.appendChild(marca);
+  var actual = null, pedido = false;
+  function mover(){
+    pedido = false;
+    var tope = window.innerHeight * .35, elegido = null;
+    pares.forEach(function(p){ if (p.s.getBoundingClientRect().top <= tope) elegido = p; });
+    if (elegido && elegido.s.getBoundingClientRect().bottom < tope) elegido = null;
+    if (elegido === actual) return;
+    if (actual) actual.a.removeAttribute('aria-current');
+    actual = elegido;
+    if (!actual) { marca.style.opacity = 0; return; }
+    actual.a.setAttribute('aria-current', 'true');
+    var t = actual.a.querySelector('.barre') || actual.a;
+    var x = t.getBoundingClientRect().left - nav.getBoundingClientRect().left;
+    marca.style.transform = 'translateX(' + x + 'px) scaleX(' + t.offsetWidth + ')';
+    marca.style.opacity = 1;
+  }
+  window.addEventListener('scroll', function(){ if (!pedido) { pedido = true; requestAnimationFrame(mover); } }, { passive: true });
+  window.addEventListener('resize', function(){ actual = null; mover(); });
+  mover();
 })();

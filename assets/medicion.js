@@ -123,8 +123,9 @@
       caja.setAttribute('role', 'dialog');
       caja.setAttribute('aria-live', 'polite');
       caja.setAttribute('aria-label', 'Aviso de cookies');
-      caja.innerHTML = '<p><b>Usamos cookies de medición</b>'
-        + 'Con tu permiso usamos Google Analytics para saber cuánta gente visita el sitio y qué páginas sirven más. '
+      caja.innerHTML = '<p><b>Usamos cookies de medición y del mapa</b>'
+        + 'Con tu permiso usamos Google Analytics para saber cuánta gente visita el sitio y qué páginas sirven más, '
+        + 'y Google Maps para mostrarte dónde queda el estudio. '
         + 'No guardamos lo que escribís en el formulario. <a href="' + politica + '#cookies">Más información</a></p>'
         + '<div class="ck__acc"><button type="button" class="ck__no">Rechazar</button>'
         + '<button type="button" class="ck__si">Aceptar</button></div>';
@@ -142,6 +143,8 @@
     var antes = leer();
     guardar(v);
     ocultar();
+    /* sitio-2.js escucha esto para mostrar el mapa sin recargar */
+    try { document.dispatchEvent(new CustomEvent('sr-cookies', { detail: v })); } catch(e){}
     if (v === 'si') cargarGA();
     else if (antes === 'si') {
       /* Primero se le niega el permiso a GA (si no, reescribe su cookie al

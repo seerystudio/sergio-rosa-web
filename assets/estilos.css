@@ -295,10 +295,29 @@ body.ficha-abierta .head{transform:translate3d(0,-102%,0)}
   display:block;height:100%;background:var(--dorado);
   transform:scaleX(var(--p,0));transform-origin:left center;
 }
+/* HEADER A (2026-10-12): al bajar pasa a ónix translúcido, no a hueso. La
+   barra clara cortaba una página que es toda oscura. El dorado ya está en la
+   barra de lectura de arriba, así que el borde de abajo es una hairline
+   neutra. */
 .head[data-fijo="si"]{
-  background:rgba(240,238,233,.92);backdrop-filter:saturate(1.4) blur(12px);
-  border-bottom-color:var(--dorado);
+  background:rgba(10,10,10,.78);
+  -webkit-backdrop-filter:saturate(1.2) blur(14px);backdrop-filter:saturate(1.2) blur(14px);
+  border-bottom-color:rgba(242,234,219,.12);
 }
+.head[data-fijo="si"] .marca__txt b,.head[data-fijo="si"] .marca__txt span{color:#fff}
+.head[data-fijo="si"] .marca svg path{fill:#fff!important}
+.head[data-fijo="si"] .nav a{color:#fff}
+.head[data-fijo="si"] .head__menu{color:#fff}
+.head[data-fijo="si"] .btn{background:var(--blanco);color:var(--grafito);border-color:var(--blanco)}
+.head[data-fijo="si"] .btn:hover{background:#E8E4DB;color:var(--grafito)}
+.head[data-fijo="si"] :focus-visible{outline-color:#fff}
+/* La sección en la que estás: un solo subrayado dorado que se desliza de un
+   link al otro (lo mueve sitio-2.js). Se mueve con transform, no con width. */
+.nav{position:relative}
+.nav__marca{position:absolute;left:0;bottom:-6px;width:1px;height:1px;background:var(--dorado);
+  transform-origin:0 50%;opacity:0;pointer-events:none;
+  transition:transform .38s var(--salida),opacity .2s var(--ease)}
+.nav a[aria-current] .barre::after{transform:scaleX(0)}
 /* Sobre la foto del hero el header no tiene fondo: todo pasa a blanco, con
    sombra de texto para que aguante cualquier zona de la imagen. Al ganar el
    fondo blanco (data-fijo="si") vuelve a grafito. */
@@ -888,43 +907,73 @@ body.ficha-abierta .head{transform:translate3d(0,-102%,0)}
   margin:var(--s7) 0 var(--s6);
   pointer-events:none;                /* la carpeta no come clics de la grilla */
 }
+/* LA CARPETA DE EXPEDIENTE (2026-10-12, variante A de
+   design/carpeta-header-variantes.html). La mueve el motor con dos números:
+   --suelto (los elásticos se sueltan, 0 a 1) y --abre (la tapa, 0 a 1). */
 .cpo__f{
-  --ancho-carp:360px;
-  --alto-carp:calc(var(--ancho-carp) * .8);
-  position:relative;
-  width:var(--ancho-carp);height:var(--alto-carp);
-  /* la abre y la cierra el motor con --abre, de 0 a 1 */
-  opacity:var(--vive,1);
-  transition:opacity .5s var(--ease);
+  position:relative;width:420px;height:320px;perspective:1200px;
+  opacity:var(--vive,1);transition:opacity .5s var(--ease);
 }
-.cpo__back{
-  position:absolute;inset:0;z-index:0;
-  background:var(--superficie);
-  border:1px solid var(--linea);
+/* sobre ónix una sombra negra no se ve: la profundidad la da la luz de la mesa */
+.cpo__luz{position:absolute;left:-30%;right:-30%;top:20%;bottom:-26%;z-index:-1;pointer-events:none;
+  background:radial-gradient(50% 46% at 50% 62%,rgba(242,234,219,.07),rgba(242,234,219,0) 70%)}
+.cpo__lomo{position:absolute;inset:38px 0 0;z-index:0;
+  background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .07 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"),linear-gradient(180deg,#171717,#121212);
+  border:1px solid rgba(242,234,219,.12)}
+.cpo__lomo::before{ /* la solapa */
+  content:"";position:absolute;left:-1px;bottom:100%;width:46%;height:38px;
+  background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .07 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"),#171717;border:1px solid rgba(242,234,219,.12);border-bottom:0;
+  clip-path:polygon(0 0,88% 0,100% 100%,0 100%);
 }
-/* la pestaña, montada 1px sobre el borde de arriba del cuerpo para que la
-   boca de la carpeta no quede cruzada por una línea */
-.cpo__back::after{
-  content:"";position:absolute;left:-1px;bottom:calc(100% - 1px);
-  width:30%;height:calc(var(--alto-carp) * .13);
-  background:var(--superficie);
-  border:1px solid var(--linea);border-bottom:0;
-}
-/* Las dos hojas de la tapa. El plegado es el del componente original
-   —skew(±15deg) scaleY(.6)— interpolado por --abre en vez de disparado por
-   una clase, porque acá lo maneja el scroll y tiene que poder quedar a mitad
-   de camino. La costura dorada es la única aparición del dorado. */
+.cpo__solapa{position:absolute;left:16px;top:-27px;z-index:1;font-size:11.5px;font-weight:600;letter-spacing:.005em;color:rgba(255,255,255,.88)}
 .cpo__tapa{
-  position:absolute;inset:0;z-index:3;
-  background:var(--superficie);
-  border:1px solid var(--linea);
-  border-top:1px solid rgba(212,175,106,.55);
-  transform-origin:bottom;
-  transform:skew(calc(var(--abre,0) * 15deg)) scaleY(calc(1 - var(--abre,0) * .4));
+  position:absolute;left:0;right:0;bottom:0;height:calc(100% - 66px);z-index:3;
+  background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .07 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"),linear-gradient(180deg,#262626 0%,#1E1E1E 38%,#1A1A1A 100%);
+  border:1px solid rgba(242,234,219,.15);border-top:1px solid rgba(212,175,106,.7);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),inset 0 -24px 40px -24px rgba(0,0,0,.6);
+  transform-origin:50% 100%;
+  transform:rotateX(calc(var(--abre,0) * -62deg));
+  filter:brightness(calc(1 + var(--abre,0) * .28));
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
 }
-.cpo__tapa--der{
-  transform:skew(calc(var(--abre,0) * -15deg)) scaleY(calc(1 - var(--abre,0) * .4));
-}
+.cpo__tapa::before{content:"";position:absolute;left:0;right:0;top:0;height:10px;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),transparent);pointer-events:none}
+.cpo__emblema{position:relative;width:78px;height:78px;display:grid;place-items:center}
+.cpo__sello{width:44px;height:39px}
+.cpo__sello path{fill:#2C2C2C!important}
+.cpo__sello{filter:drop-shadow(0 1px 0 rgba(255,255,255,.17)) drop-shadow(0 -1px 0 rgba(0,0,0,.9))}
+.cpo__sello-borde{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(212,175,106,.5);
+  box-shadow:inset 0 0 0 4px #1F1F1F,inset 0 0 0 5px rgba(212,175,106,.24)}
+/* la carátula: el rótulo de papel pegado en la tapa */
+.cpo__caratula{position:relative;width:238px;padding:11px 14px 10px;
+  background:#ECE9E2;color:var(--grafito);
+  box-shadow:0 1px 0 rgba(0,0,0,.5),0 6px 14px -8px rgba(0,0,0,.8);
+  display:flex;flex-direction:column;gap:6px}
+.cpo__caratula::before{content:"";position:absolute;inset:4px;border:1px solid rgba(28,28,28,.22);pointer-events:none}
+.cpo__caratula b{font-size:13.5px;font-weight:600;letter-spacing:-.01em;line-height:1.2;display:flex;justify-content:space-between}
+.cpo__caratula b i{font-style:normal;font-variant-numeric:tabular-nums}
+.cpo__caratula span{font-size:10.5px;font-weight:400;line-height:1.3;border-top:1px solid rgba(28,28,28,.18);padding-top:6px}
+/* dos elásticos tejidos que abrazan las esquinas; se sueltan por su diagonal */
+.cpo__elastico{position:absolute;z-index:4;width:76px;height:5px;margin:-2.5px 0 0 -38px;border-radius:1px;
+  background:repeating-linear-gradient(90deg,rgba(0,0,0,.16) 0 1px,transparent 1px 3px),linear-gradient(180deg,#7A623C,#C8A866 45%,#9A7E4A 75%,#6E5734);
+  box-shadow:0 2px 5px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.18);
+  opacity:calc(1 - var(--suelto,0))}
+.cpo__elastico--a{left:calc(100% - 24px);top:90px;
+  transform:translate(calc(var(--suelto,0) * 30px),calc(var(--suelto,0) * -30px)) rotate(calc(45deg + var(--suelto,0) * 7deg))}
+.cpo__elastico--b{left:24px;top:calc(100% - 24px);
+  transform:translate(calc(var(--suelto,0) * -30px),calc(var(--suelto,0) * 30px)) rotate(calc(45deg - var(--suelto,0) * 7deg))}
+
+/* EL PAPEL ES UN DOCUMENTO: mientras viaja, cada celda muestra el número y el
+   nombre del área donde después va a quedar el título, con renglones abajo.
+   Lo agrega el motor (aria-hidden) y vive sólo con .cpo--on. */
+.srv__doc{display:none}
+.cpo--on .srv__doc{display:flex;position:absolute;left:var(--s4);right:var(--s4);top:var(--s4);
+  flex-direction:column;gap:14px;color:var(--grafito);opacity:var(--papel,0);pointer-events:none}
+.cpo--on .srv__doc b{font-family:var(--mono);font-size:11px;letter-spacing:.14em;font-weight:600}
+.cpo--on .srv__doc span{font-size:clamp(19px,1.55vw,23px);letter-spacing:-.03em;line-height:1.14;font-weight:600}
+.cpo--on .srv__doc::after{content:"";display:block;height:72px;margin-top:4px;
+  background:repeating-linear-gradient(180deg,rgba(28,28,28,.16) 0 1px,transparent 1px 15px);
+  -webkit-mask:linear-gradient(90deg,#000 70%,transparent);mask:linear-gradient(90deg,#000 70%,transparent)}
 
 /* LAS CELDAS. Mientras están adentro de la carpeta o viajando, el motor les
    escribe el transform cuadro a cuadro. El z-index se lo escribe también:
@@ -967,7 +1016,7 @@ body.ficha-abierta .head{transform:translate3d(0,-102%,0)}
 .cpo--suelta .srv__c{will-change:transform}
 
 @media (max-width:900px){
-  .cpo__f{--ancho-carp:260px}
+  .cpo__f{transform:scale(.72);transform-origin:50% 100%;margin-top:-90px}
   /* el top era del sticky, que se cayó: la banda va en el flujo */
 }
 /* motion reducido no necesita regla propia: la banda ya está oculta por
@@ -1470,7 +1519,15 @@ body.ficha-abierta .head{transform:translate3d(0,-102%,0)}
 }
 .mapa__pre h3{font-size:clamp(22px,2.4vw,30px);letter-spacing:-.035em;line-height:1.15}
 .mapa__pre .btn{align-self:flex-start;margin-top:10px}
-.mapa iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;filter:saturate(.9)}
+/* El mapa en grises oscuros: un Google Maps a todo color en medio del ónix
+   era lo único de la página fuera de paleta. Entra con un fundido cuando
+   terminó de cargar, no a pedazos. */
+.mapa iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;
+  filter:grayscale(1) invert(.9) contrast(.88) brightness(.98);
+  opacity:0;transition:opacity .6s var(--ease)}
+.mapa[data-cargado="si"] iframe{opacity:1}
+.mapa__nota{font-size:14px;max-width:36ch}
+.mapa[data-pedido="si"] .mapa__nota{visibility:hidden}
 .mapa[data-cargado="si"] .mapa__pre{display:none}
 /* la ficha en dos columnas: los datos cortos se leen de un barrido y la
    dirección, las ciudades y lo pendiente ocupan el ancho completo */
@@ -1498,6 +1555,32 @@ body.ficha-abierta .head{transform:translate3d(0,-102%,0)}
    nombre del estudio con un hueco al lado. El único <svg> del pie es el
    símbolo, así que la regla no toca nada más. */
 .foot svg path{fill:#fff!important}
+/* LA FIRMA (2026-10-12). El nombre del estudio al ancho del pie, con el
+   símbolo al lado, como se firma un escrito. La hairline dorada de abajo
+   separa la firma de los datos. */
+.foot__firma{position:relative;display:flex;align-items:center;gap:clamp(6px,1vw,14px);
+  padding-bottom:var(--s6);margin-bottom:var(--s6);color:#fff}
+.foot__firma:hover{text-decoration:none}
+.foot__firma::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
+  background:rgba(212,175,106,.55);transform-origin:0 50%}
+.foot .foot__sim{width:clamp(76px,10vw,140px);margin:0 -.5vw 0 -1.2vw;height:auto;aspect-ratio:457/400;flex:none;overflow:visible}
+.foot__nombre{display:block;overflow:hidden;padding:.06em 0 .14em;
+  font-size:clamp(30px,6.3vw,82px);line-height:.95;letter-spacing:-.045em;font-weight:600;word-spacing:.02em}
+.foot__nombre > span{display:block}
+/* el gesto: sólo con .foot--anima, que pone sitio-2.js */
+.foot--anima .foot__sim path{transform-box:fill-box;transform-origin:50% 50%;opacity:0;
+  transition:transform .9s var(--salida),opacity .5s var(--ease)}
+.foot--anima .foot__sim path:nth-child(1){transform:translate(150px,0)}
+.foot--anima .foot__sim path:nth-child(2){transform:translate(-150px,0)}
+.foot--anima .foot__sim path:nth-child(3){transform:translate(0,130px)}
+.foot--anima .foot__nombre > span{transform:translate3d(0,108%,0);transition:transform 1s var(--salida) .22s}
+.foot--anima .foot__firma::after{transform:scaleX(0);transition:transform 1.2s var(--salida) .4s}
+/* :nth-child(n) para empatar la especificidad de los tres de arriba */
+.foot--visto .foot__sim path:nth-child(n){transform:none;opacity:1}
+.foot--visto .foot__sim path:nth-child(2){transition-delay:.09s}
+.foot--visto .foot__sim path:nth-child(3){transition-delay:.18s}
+.foot--visto .foot__nombre > span{transform:none}
+.foot--visto .foot__firma::after{transform:scaleX(1)}
 .foot__grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:var(--s5)}
 .foot h3{color:#fff;font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:200;margin-bottom:var(--s3)}
 .foot li{margin-bottom:9px;font-size:14px}
