@@ -80,12 +80,17 @@ vez que se toca la home.
   rastreadores leen `seerystudio.github.io/robots.txt`, no el nuestro. Empieza a regir
   el día del dominio propio.
 
-## Antes de publicar
+## Movimiento v2 y SEO (2026-11-19)
 
-- Falta el dominio propio. Cuando esté: las doce URL del `sitemap.xml`, las claves `url` de los
-  datos estructurados (`LegalService`, `BreadcrumbList`, `FAQPage`), y `canonical` y Open Graph,
-  que hoy **no existen en ninguna de las doce**.
-- La home no tiene datos estructurados. Los `LegalService` / `BreadcrumbList` / `FAQPage` viven
-  sólo en las páginas de área.
-- El bloque de reseñas de la home está tapado con `display:none`: la ficha de Google existe pero
-  tiene cero reseñas. O se cargan reales, o el bloque se borra.
+- **`assets/movimiento.css` + `assets/movimiento.js`** van después de `estilos.css` y `sitio-2.js` en
+  las doce páginas y no modifican nada de lo anterior: scroll con peso (solo compu con mouse), anclas
+  animadas, cinta del hero que responde al scroll, foco palabra por palabra en Nosotros, botones con
+  el texto que sube, pestañas de contacto con marca que viaja, hairlines de «Dónde» y el mazo de
+  reseñas. Si el archivo no carga, la página es la de antes. Respeta `prefers-reduced-motion`.
+- **Reseñas:** el bloque está a la vista con las reseñas reales de la ficha de Google, tal cual.
+- **SEO:** `canonical`, Open Graph con imagen propia (`assets/img/compartir-sergio-rosa-y-asociados.jpg`),
+  favicon, `LegalService` + `Person` en la home, `WebPage` y breadcrumbs con enlace en las áreas,
+  `llms.txt` y la verificación de Bing (`msvalidate.01` en la home: **no sacarla**).
+- ⚠️ **Los generadores de `design/` (`build-areas.mjs` y compañía) no están en esta PC.** Las once
+  áreas se editaron directo. Si alguna vez se vuelven a generar, hay que llevarles estos cambios
+  antes o los pisan.
